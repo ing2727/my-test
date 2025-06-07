@@ -6,15 +6,30 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v1
+
       - name: Prepare
         run: npm ci
+
       - name: Lint
         uses: mooyoul/tslint-actions@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pattern: '*.ts'
+
       - name: Build
         run: npm run build
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run ticket checker
+        run: python check_ticket.py
+
       - name: Publish
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: npx semantic-release
